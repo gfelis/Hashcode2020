@@ -45,23 +45,29 @@ class Problem():
 def parsedata(inputfile):
 
     with open(inputfile, 'r') as fd:
-        first_line = fd.readline().split(" ")
-
+        first_line = next(fd).split('\n')[0].split(' ')
         #n_libraries = first_line[1]
-        total_time = first_line[2]
-
-        bookScores = fd.readline().split(" ")
-        index = 0
-        for line in fd:
-            library_info = line.split(" ")
-            if len(library_info) == 3:
-                index = index + 1
-                print("Llibreria books " + library_info[0])
-                print("Sign Up days " + library_info[1])
-                print("Nª llibres dia " + library_info[2])
+        total_time = int(first_line[2])
+        bookScores = []
+        line2 = next(fd).split('\n')[0].split(' ')
+        for i in range(len(line2)):
+            bookScores.append(int(line2[i]))
         libraries = []
-        libraries[index] = problem.Library(line, library_info[1], library_info[2])
-        problem.Problem(libraries, bookScores, total_time)
+        singUpTime = 0
+        scanrate = 0
+        for line in fd:
+            library_info = line.split('\n')[0].split(' ')
+            books = []
+            if len(library_info) == 3:
+                singUpTime = int(library_info[1])
+                scanrate = int(library_info[2])
+            if len(library_info) > 3:
+                for j in range(len(library_info)):
+                    books.append(int(library_info[j]))
+                libraries.append(Library(books, singUpTime, scanrate))
+                
+        return Problem(libraries, bookScores, total_time)
+
 
 if __name__ == '__main__':
     problem = None
@@ -69,6 +75,8 @@ if __name__ == '__main__':
         print("Usage: ./problem inputfile.txt")
     if len(sys.argv) == 2:
         problem = parsedata(sys.argv[1])
+
+        int = 0
 
 
 
