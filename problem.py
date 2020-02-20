@@ -3,16 +3,18 @@ import sys
 class Library():
     def __init__(self, books, singuptime, scanrate):
         self.books = books # (list)
-        self.singUpTime = singuptime # int
+        self.signUpTime = singuptime # int
         self.scanrate = scanrate # int
-        self.signedUpDate = None
+        self.signedUpDate = 0
 
 class Problem():
     def __init__(self, libraries, bookScores, time):
         self.libraries = libraries # libraries
         self.bookScores = bookScores # (list) constant, score for book in position
         self.time = time # (int)
-        self.scores = None  # score for each library
+        self.scannedBooks = set()
+        self.signedUpLibraries = []
+        self.scores = [0] * len(self.libraries)  # score for each library
         self.date = 0# (int)
 
     def computeTotalScores(self):
@@ -21,8 +23,8 @@ class Problem():
 
     def libraryScore(self, library):
         totalBookScores = 0
-        for i, elem in enumerate(library.books):
-            totalBookScores += self.bookScores[i]
+        for elem in library.books:
+            totalBookScores += self.bookScores[elem]
 
         score = totalBookScores ###TO DO
         return score
@@ -33,20 +35,44 @@ class Problem():
     def signUpLibrary(self, library):
         if library.signUpTime < (self.time - self.date):
             library.signedUpDate = self.date + library.signUpTime
+        for i in range(len(self.libraries)):
+            if self.libraries[i] == library:
+                self.signedUpLibraries.append(i)
+                self.libraries[i] = None
+
 
     def chooseHighestLibrary(self):
         highestLibrary = self.libraries[0]
         for i, score in enumerate(self.scores):
-            if score > highestLibrary.score:
+            if score > self.scores[i]:
                 highestLibrary = self.libraries[i]
         return highestLibrary
+
+    def scanBooks(self, library):
+        for book in library.books:
+            self.scannedBooks.add(book)
+
+
+    def solve(self):
+        while(self.date < self.time):
+            self.computeTotalScores()
+            libraryToSignUp = self.chooseHighestLibrary()
+            self.signUpLibrary(libraryToSignUp)
+            self.liveOneDay()
+            self.scanBooks(libraryToSignUp)
+
+        self.write()
+
+    def write(self):
+        print(len(self.libraries))
+        print(self.libraries(self.signedUpLibraries[0]) + " " + self.libraries(self.signedUpLibraries[0]))
+
 
 
 def parsedata(inputfile):
 
     with open(inputfile, 'r') as fd:
         first_line = next(fd).split('\n')[0].split(' ')
-        #n_libraries = first_line[1]
         total_time = int(first_line[2])
         bookScores = []
         line2 = next(fd).split('\n')[0].split(' ')
@@ -75,8 +101,7 @@ if __name__ == '__main__':
         print("Usage: ./problem inputfile.txt")
     if len(sys.argv) == 2:
         problem = parsedata(sys.argv[1])
-
-        int = 0
+        problem.solve()
 
 
 
